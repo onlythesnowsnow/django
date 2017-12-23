@@ -60,6 +60,16 @@ def getContentFromPDF(fileName):
     return content
 
 '''
+没啥用
+'''
+def inBlackListIP(IP):
+    blackList=['127.0.0.1','1.1.1.1','1.0.0.1','255.255.255.255','255.255.255.0','255.255.0.0','255.0.0.0','1.0.0.0']
+    if IP in blackList:
+        return True
+    else:
+        return False
+
+'''
 利用正则匹配content中的IP，有IP返回True
 '''
 def lookForIP(content):
@@ -69,9 +79,15 @@ def lookForIP(content):
     if m:
         #去重
         IPs=list(set(m))
-        #输出匹配结果
-        print IPs
-        return True
+        #利用黑名单再次清洗
+        for one in IPs[::-1]:
+            whetherIn=inBlackListIP(one)
+            if whetherIn==True:
+                IPs.remove(one)
+        if IPs:
+            #输出匹配结果
+            print IPs
+            return True
     else:
         return False
 
@@ -79,14 +95,15 @@ def lookForIP(content):
 利用正则匹配content中的SHA-1，有SHA-1返回True
 '''        
 def lookForSHA1(content):
-    patternSHA1='(?<=[\n^\r\s])[a-zA-Z0-9]{40}(?=[\n$\r\s])'
+    patternSHA1='(?<=[\n^\r\s:])[a-zA-Z0-9]{40}(?=[\n$\r\s])'
     m = re.findall(patternSHA1,content)
+    #print len(m)
     print 'SHA-1'
     if m:
         #去重
         SHA1=list(set(m))
         #输出匹配结果
-        print SHA1
+        #print SHA1
         return True
     else:
         return False
@@ -110,7 +127,7 @@ def lookForMD5(content):
 '''
 没啥用
 '''
-def inBlackList(URL):
+def inBlackListURL(URL):
     blackList=['U.S','SystemTime.wDay','ystemtime.wMonth','SystemTime.wYear']
     #旧的黑名单
     #blackList=['U.S','SystemTime.wDay','ystemtime.wMonth','SystemTime.wYear','microsoft.com','yahoo.com', 'google.com','163.com','Mail.ru','126.com','Mail.com','127.0.0.1','1.1.1.1','1.0.0.1']
@@ -137,13 +154,41 @@ def lookForURL(content):
     #去重
     URLs=list(set(m))
     #利用黑名单再次清洗
-    for one in URLs:
-        whetherIn=inBlackList(one)
+    for one in URLs[::-1]:
+        whetherIn=inBlackListURL(one)
         if whetherIn==True:
             URLs.remove(one)
     print URLs
     return True
+
+'''
+查找国家和地区
+'''
+def lookForRegion(content):
+
+    country =['Angola', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Anguilla', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Ascension', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda Is.', 'Bolivia', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina-faso', 'Burma', 'Burundi', 'Cameroon', 'Canada', 'Cayman Is.', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Congo', 'Cook Is.', 'Costa Rica', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica Rep.', 'Ecuador', 'Egypt', 'EI Salvador', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'French Guiana', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Grenada', 'Guam', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'Hongkong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kampuchea', 'Cambodia', 'Kazakstan', 'Kenya', 'Korea', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Mariana Is', 'Martinique', 'Mauritius', 'Mexico', 'Moldova, Republic of', 'Monaco', 'Mongolia', 'Montserrat Is', 'Morocco', 'Mozambique', 'Namibia', 'Nauru', 'Nepal', 'Netheriands Antilles', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'Norway', 'Oman', 'Pakistan', 'Panama', 'Papua New Cuinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'French Polynesia', 'Portugal', 'Puerto Rico', 'Qatar', 'Reunion', 'Romania', 'Russia', 'Saint Lueia', 'Saint Vincent', 'Samoa Eastern', 'Samoa Western', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Is', 'Somali', 'South Africa', 'Spain', 'Sri Lanka', 'St.Lucia', 'St.Vincent', 'Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikstan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kiongdom', 'United States of America', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 'Yemen', 'Yugoslavia', 'Zimbabwe', 'Zaire', 'Zambia']
+    area = ['Asia','Europe','Africa','Latin America','South America','North America','Oceania','Antarctica']
+    
+    Regions=[]
+    Flag=False
+    for one in country:
+        if one in content:
+            Regions.append(one)
+            Flag=True
+    for one in area:
+        if one in area:
+            Regions.append(one)
+            Flag=True
             
+    print 'Region'
+    if Flag:
+        #去重
+        Regions=list(set(Regions))
+        #输出匹配结果
+        print Regions
+    return Flag
+    
+
 
 if __name__ == "__main__":
     #获得指定路径下的全部pdf
@@ -162,6 +207,7 @@ if __name__ == "__main__":
         MD5result=lookForMD5(content)
         #查url
         URLresult=lookForURL(content)
+        lookForRegion(content)
     
     
     
